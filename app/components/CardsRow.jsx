@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import WeatherCard from './WeatherCard';
 
 const CardsRow = ({ cardsData, changeForecastToShow }) => {
   return (
     <View style={styles.row}>
       <TouchableOpacity
-        style={styles.rowButtonLeft}
+        style={[styles.rowButton, styles.rowButtonLeft]}
         onPress={() => changeForecastToShow('left')}
       ></TouchableOpacity>
       {cardsData.map(({ date, icon, temp }) => (
@@ -14,7 +14,7 @@ const CardsRow = ({ cardsData, changeForecastToShow }) => {
       ))}
 
       <TouchableOpacity
-        style={styles.rowButtonRight}
+        style={[styles.rowButton, styles.rowButtonRight]}
         onPress={() => changeForecastToShow('right')}
       ></TouchableOpacity>
     </View>
@@ -28,23 +28,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
-  rowButtonLeft: {
+  rowButton: {
     position: 'absolute',
-    left: 0,
     top: '10%',
     backgroundColor: 'transparent',
     width: '50%',
     height: '90%',
     zIndex: 10,
   },
+  rowButtonLeft: {
+    left: 0,
+  },
   rowButtonRight: {
-    position: 'absolute',
     right: 0,
-    top: '10%',
-    backgroundColor: 'transparent',
-    zIndex: 10,
-    width: '50%',
-    height: '90%',
   },
   rowImg: {
     width: 25,

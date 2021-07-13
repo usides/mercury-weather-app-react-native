@@ -57,14 +57,18 @@ export const getSevenDaysForecastFromApi = async (city) => {
     const data = await response.json().then((d) => d.daily);
     return data.map((day) => adaptWeatherData(day));
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
 export const getGoneDayWeatherFromApi = async (city, dt) => {
-  const { lat, lon } = cities[city];
-  const url = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=${lat}&lon=${lon}&dt=${dt}&appid=${REACT_APP_OPEN_WEATHER_MAP_API_KEY}`;
-  const response = await fetch(url);
-  const data = await response.json().then((d) => d.hourly[12]);
-  return adaptWeatherData(data);
+  try {
+    const { lat, lon } = cities[city];
+    const url = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=${lat}&lon=${lon}&dt=${dt}&appid=${REACT_APP_OPEN_WEATHER_MAP_API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json().then((d) => d.hourly[12]);
+    return adaptWeatherData(data);
+  } catch (error) {
+    console.error(error);
+  }
 };

@@ -20,8 +20,8 @@ import {
 import Pane from './Pane';
 import CitySelect from './CitySelect';
 import CardsRow from './CardsRow';
-// import DateSelect from './components/DateSelect/DateSelect'
-// import WeatherCard from './components/WeatherCard/WeatherCard'
+import DateSelect from './DateSelect';
+import WeatherCard from './WeatherCard';
 
 function Main() {
   let [fontsLoaded] = useFonts({
@@ -35,17 +35,15 @@ function Main() {
     head: 0,
   });
   const [forecastToShow, setForecastToShow] = useState([]);
-  // const [currentGoneDayFields, setCurrentGoneDayFields] =
-  //   useState({
-  //     dt: '',
-  //     city: ''
-  //   })
-  // const [goneDayWeatherCache, setGoneDayWeatherCache] =
-  //   useState({})
-  // const [currentGoneDayWeatherData, setCurrentGoneDayWeatherData] =
-  //   useState({})
 
-  const gap = 1;
+  const [currentGoneDayFields, setCurrentGoneDayFields] = useState({
+    dt: '',
+    city: '',
+  });
+  const [goneDayWeatherCache, setGoneDayWeatherCache] = useState({});
+  const [currentGoneDayWeatherData, setCurrentGoneDayWeatherData] = useState(
+    {},
+  );
 
   const selectCityForForecast = async (city) => {
     try {
@@ -72,14 +70,14 @@ function Main() {
   useEffect(() => {
     if (currentForecastData.days.length === 0) return;
     const { days, head } = currentForecastData;
-    const daysToShow = days.slice(head, head + gap);
+    const daysToShow = days.slice(head, head + 1);
     setForecastToShow(daysToShow);
-  }, [currentForecastData, gap]);
+  }, [currentForecastData]);
 
   const changeForecastToShow = (direction) => {
     if (forecastToShow.length === 0) return;
     if (direction === 'right') {
-      if (currentForecastData.head + gap >= currentForecastData.days.length) {
+      if (currentForecastData.head + 1 >= currentForecastData.days.length) {
         return;
       }
       setCurrentForecastData((state) => ({ ...state, head: state.head + 1 }));
@@ -92,13 +90,35 @@ function Main() {
     }
   };
 
-  // const selectGoneDayCity = (city) => {
-  //   setCurrentGoneDayFields((state) => ({ ...state, city }))
-  // }
+  const selectGoneDayCity = (city) => {
+    setCurrentGoneDayFields((state) => ({ ...state, city }));
+  };
 
-  // const selectGoneDayDate = (dt) => {
-  //   setCurrentGoneDayFields((state) => ({ ...state, dt }))
-  // }
+  const selectGoneDayDate = (dt) => {
+    setCurrentGoneDayFields((state) => ({ ...state, dt }));
+  };
+
+  useEffect(() => {
+    const { dt, city } = currentGoneDayFields;
+    if (dt && city) {
+      getGoneDayWeather(city, dt);
+    }
+
+    async function getGoneDayWeather(city, dt) {
+      const cacheKey = `${city}-${dt}`;
+
+      if (goneDayWeatherCache.hasOwnProperty(cacheKey)) {
+        setCurrentGoneDayWeatherData(goneDayWeatherCache[cacheKey]);
+      } else {
+        const apiData = await getGoneDayWeatherFromApi(city, dt);
+        setGoneDayWeatherCache((state) => ({
+          ...state,
+          [cacheKey]: apiData,
+        }));
+        setCurrentGoneDayWeatherData(apiData);
+      }
+    }
+  }, [currentGoneDayFields]);
 
   if (!fontsLoaded) {
     return <AppLoading />;
@@ -113,8 +133,10 @@ function Main() {
         >
           <View style={styles.header}>
             <View style={styles.heading}>
-              <Text style={styles.headingLeft}>Weather</Text>
-              <Text style={styles.headingRight}>forecast</Text>
+              <Text style={styles.headingText}>Weather</Text>
+              <Text style={[styles.headingText, styles.headingTextRight]}>
+                forecast
+              </Text>
             </View>
           </View>
         </ImageBackground>
@@ -137,21 +159,19 @@ function Main() {
           resizeMode='stretch'
         >
           <Pane
-            // isPlaceholder={Object.keys(currentGoneDayWeatherData).length === 0}
-            isPlaceholder={true}
+            isPlaceholder={Object.keys(currentGoneDayWeatherData).length === 0}
             headerText='Forecast for a Date in the Past'
           >
-            {/* <form className='form'>
-          <CitySelect selectCity={selectGoneDayCity} />
-          <DateSelect selectDate={selectGoneDayDate} />
-        </form>
-        {Boolean(Object.keys(currentGoneDayWeatherData).length) && (
-          <WeatherCard
-            date={currentGoneDayWeatherData.date}
-            icon={currentGoneDayWeatherData.icon}
-            temp={currentGoneDayWeatherData.temp}
-          />
-        )} */}
+            <CitySelect selectCity={selectGoneDayCity} />
+            <DateSelect selectDate={selectGoneDayDate} />
+
+            {Boolean(Object.keys(currentGoneDayWeatherData).length) && (
+              <WeatherCard
+                date={currentGoneDayWeatherData.date}
+                icon={currentGoneDayWeatherData.icon}
+                temp={currentGoneDayWeatherData.temp}
+              />
+            )}
           </Pane>
 
           <View style={styles.footer}>
@@ -183,19 +203,15 @@ const styles = StyleSheet.create({
   heading: {
     width: 310,
   },
-  headingLeft: {
+  headingText: {
     fontSize: 40,
     color: '#fff',
     fontFamily: 'Ubuntu_700Bold',
   },
-  headingRight: {
-    fontSize: 40,
+  headingTextRight: {
     marginTop: -5,
     alignSelf: 'flex-end',
-    color: '#fff',
-    fontFamily: 'Ubuntu_700Bold',
   },
-  mainSection: {},
   footer: {
     flexShrink: 0,
     paddingTop: 20,

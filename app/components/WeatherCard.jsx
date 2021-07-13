@@ -5,7 +5,7 @@ const WeatherCard = ({ date, icon, temp }) => {
   return (
     <View style={styles.card}>
       <Text style={styles.cardDate}>{date}</Text>
-      <Image style={styles.cardImg} source={{ uri: icon }} />
+      <Image fadeDuration={0} style={styles.cardImg} source={{ uri: icon }} />
       <Text style={styles.cardTemp}>{temp}</Text>
     </View>
   );

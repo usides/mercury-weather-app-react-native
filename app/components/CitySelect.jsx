@@ -54,11 +54,11 @@ const styles = StyleSheet.create({
   },
   item: {
     color: '#2c2d76',
-    fontSize: 18,
+    fontSize: 20,
   },
   selectCity: {
     color: '#8083a4',
-    fontSize: 18,
+    fontSize: 20,
   },
 });
 
